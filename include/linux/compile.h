@@ -1,8 +1,8 @@
-/* This file is auto generated, version 11 */
+/* This file is auto generated, version 12 */
 /*  PREEMPT */
 #define UTS_MACHINE "arm"
-#define UTS_VERSION "#11 PREEMPT Fri Apr 22 19:43:19 CEST 2016"
-#define LINUX_COMPILE_TIME "19:43:19"
+#define UTS_VERSION "#12 PREEMPT Wed May 4 10:42:25 CEST 2016"
+#define LINUX_COMPILE_TIME "10:42:25"
 #define LINUX_COMPILE_BY "de"
 #define LINUX_COMPILE_HOST "de-desktop"
 #define LINUX_COMPILE_DOMAIN "fritz.box"

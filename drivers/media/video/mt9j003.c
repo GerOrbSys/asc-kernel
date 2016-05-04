@@ -39,8 +39,8 @@
 #define MT9J003_COLUMN_START_DEF    112
 #define MT9J003_ROW_START_DEF				8
 
-#define MT9J003_WINDOW_WIDTH_DEF    720//3664
-#define MT9J003_WINDOW_HEIGHT_DEF   480//2748
+#define MT9J003_DEFAULT_WIDTH    720//3664
+#define MT9J003_DEFAULT_HEIGHT   480//2748
 
 #define MT9J003_WINDOW_WIDTH_MAX    3664
 #define MT9J003_WINDOW_HEIGHT_MAX   2748
@@ -185,21 +185,6 @@ static const struct v4l2_queryctrl mt9j003_controls[] = {
 	}
 };
 
-struct frame_table {
-	unsigned long width;
-	unsigned long height;
-	unsigned int x_odd_increment;
-	unsigned int y_odd_increment;
-	int y_summing_enabled;
-	int x_bin_enabled;
-}
-
-const static struct frame_table mt9j003_frame_table[] = {
-	{916, 688, 7, 7, 1, 1},
-	{1920, 1080, 3, 3, 1, 1},
-	{3856, 2764, 0, 0, 0, 0}
-};
-
 /* Device structure */
 
 static const unsigned int mt9j003_num_controls = ARRAY_SIZE(mt9j003_controls);
@@ -208,7 +193,7 @@ struct mt9j003 {
 	struct v4l2_subdev sd;
 	int model;
 	u32 x_current;
-	u32 x_current;
+	u32 y_current;
 	u16 xskip;
 	u16 yskip;
 	u32 xbin;
@@ -219,6 +204,12 @@ struct mt9j003 {
 	u32 exposure;
 	unsigned short mirror_column;
 	unsigned short mirror_row;
+	u32 x_min;
+	u32 y_min;
+	u32 width_min;
+	u32 height_min;
+	u32 width_max;
+	u32 height_max;
 };
 
 static inline struct mt9j003 *to_mt9j003(struct v4l2_subdev *sd)
@@ -350,17 +341,6 @@ static int __mt9j003_set_power(struct mt9j003 *mt9j003, bool on)
 	return 0;
 }
 
-const struct v4l2_queryctrl *mt9j003_find_qctrl(u32 id)
-{
-    int i;
-
-    for (i = 0; i < mt9j003_num_controls; i++) {
-        if (mt9j003_controls[i].id == id){
-            return &mt9j003_controls[i];
-        }
-    }
-    return NULL;
-}
 
 /* Register setup */
 
@@ -447,8 +427,8 @@ static int mt9j003_set_params(struct v4l2_subdev *sd,
 	else if (yskip & 4)
 			ybin = 4;
 
-  left = ((left) & ~(2 * xbin -1)) + 1 * xbin * mt9p031->mirror_row;
-  top = ((top) & ~(2 * ybin -1)) + 1 * ybin * mt9p031->mirror_column;
+  left = ((left) & ~(2 * xbin -1)) + 1 * xbin * mt9j003->mirror_row;
+  top = ((top) & ~(2 * ybin -1)) + 1 * ybin * mt9j003->mirror_column;
 
 	mt9j003->width  = rect->width,
 	mt9j003->height = height,
@@ -498,7 +478,7 @@ static int mt9j003_set_params(struct v4l2_subdev *sd,
 	reg_write(client, MT9J003_SCALING_MODE, 0);
 	reg_write(client, MT9J003_M_SCALE, 16);
 	reg_write(client, MT9J003_X_OUTPUT_SIZE, mt9j003->width);
-	reg_write(client, MT9J003_Y_OUTPUT_SIZE, mt9j003->height;
+	reg_write(client, MT9J003_Y_OUTPUT_SIZE, mt9j003->height);
 
 	// Row timing
 	reg_write(client, MT9J003_LINE_LENGTH_PCK, 5000);
@@ -626,9 +606,6 @@ static int mt9j003_set_fmt(struct v4l2_subdev *sd,
 static int mt9j003_try_fmt(struct v4l2_subdev *sd,
 			   struct v4l2_format *f)
 {
-	frame_format ff;
-	int choosen_format = -1;
-
 	struct v4l2_pix_format *pix = &f->fmt.pix;
 
 	if (pix->height < MT9J003_MIN_HEIGHT)
@@ -682,7 +659,6 @@ static int mt9j003_get_chip_id(struct v4l2_subdev *sd,
 
 static int mt9j003_get_control(struct v4l2_subdev *, struct v4l2_control *);
 static int mt9j003_set_control(struct v4l2_subdev *, struct v4l2_control *);
-static int mt9j003_queryctrl(struct v4l2_subdev *, struct v4l2_queryctrl *);
 
 static const struct v4l2_subdev_core_ops mt9j003_core_ops = {
 	.g_chip_ident = mt9j003_get_chip_id,
@@ -702,16 +678,6 @@ static const struct v4l2_subdev_ops mt9j003_ops = {
 	.core = &mt9j003_core_ops,
 	.video = &mt9j003_video_ops,
 };
-
-static int mt9j003_queryctrl(struct v4l2_subdev *sd,
-			     struct v4l2_queryctrl *qctrl)
-{
-	const struct v4l2_queryctrl *temp_qctrl;
-
-	// TODO: implement
-
-	return 0;
-}
 
 static int mt9j003_get_control(struct v4l2_subdev *sd,
 			       struct v4l2_control *ctrl)
@@ -762,6 +728,7 @@ static int mt9j003_set_control(struct v4l2_subdev *sd,
 	struct mt9j003 *mt9j003 = to_mt9j003(sd);
 	const struct v4l2_queryctrl *qctrl = NULL;
 	int data;
+	int ret;
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 
 	if (NULL == ctrl)
@@ -787,7 +754,8 @@ static int mt9j003_set_control(struct v4l2_subdev *sd,
             printk("I receive a value that exceeds the range:%d\n",(int)ctrl->value);
             return -EINVAL;
         }
-        data = calc_gain(ctrl->value);
+				// TODO: adjust
+        data = ctrl->value;
         v4l2_dbg(1, debug, sd, "Setting gain %d\n", data);
         switch (ctrl->id) {
             case V4L2_CID_RED_BALANCE:
@@ -820,7 +788,7 @@ static int mt9j003_set_control(struct v4l2_subdev *sd,
                 break;
         }
         break;
-	});
+	};
 
 	return 0;
 }
@@ -896,7 +864,23 @@ static int mt9j003_probe(struct i2c_client *client,
 		goto clean;
 
 	// Setup device
-	// TODO: fill variables
+	mt9j003->x_min      = 0;
+	mt9j003->y_min      = 0;
+	mt9j003->width      = MT9J003_DEFAULT_WIDTH;
+	mt9j003->height     = MT9J003_DEFAULT_HEIGHT;
+
+	mt9j003->width_min  = MT9J003_MIN_WIDTH;
+	mt9j003->width_max  = MT9J003_MAX_WIDTH;
+	mt9j003->height_min = MT9J003_MIN_HEIGHT;
+	mt9j003->height_max = MT9J003_MAX_HEIGHT;
+
+	mt9j003->xskip = 1;
+	mt9j003->yskip = 1;
+	mt9j003->xbin = 1;
+	mt9j003->ybin = 1;
+	mt9j003->mirror_column = 0;
+	mt9j003->mirror_row = 0;
+
 
 	/* Register with V4L2 layer as slave device */
 	sd = &mt9j003->sd;
