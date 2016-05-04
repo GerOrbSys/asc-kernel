@@ -1,7 +1,7 @@
 VERSION = 2
 PATCHLEVEL = 6
 SUBLEVEL = 32
-EXTRAVERSION = -17-ridgerun
+EXTRAVERSION = -17-asc
 NAME = Man-Eating Seals of Antiquity
 
 # *DOCUMENTATION*

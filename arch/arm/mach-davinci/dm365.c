@@ -585,6 +585,9 @@ MUX_CFG(DM365,	SPI4_SDENA0,	4,   20,    3,    1,	 false)
 MUX_CFG(DM365,	SPI4_SDENA1,	4,   16,    3,    2,	 false)
 
 MUX_CFG(DM365,	GPIO20,		3,   21,    3,    0,	 false)
+MUX_CFG(DM365,	GPIO30,		4,   6,     3,	  0,	 false)
+MUX_CFG(DM365,	GPIO31,		4,   8,     3,	  0,	 false)
+MUX_CFG(DM365,	GPIO32,		4,   10,    3,	  0,	 false)
 MUX_CFG(DM365,	GPIO33,		4,   12,    3,	  0,	 false)
 MUX_CFG(DM365,	GPIO40,		4,   26,    3,	  0,	 false)
 MUX_CFG(DM365,	GPIO66,		2,   0,     3,	  0,	 false)
@@ -1265,6 +1268,7 @@ static struct resource vpfe_resources[] = {
 };
 
 static u64 vpfe_capture_dma_mask = DMA_BIT_MASK(32);
+
 static struct platform_device vpfe_capture_dev = {
 	.name           = CAPTURE_DRV_NAME,
 	.id             = -1,
@@ -1316,7 +1320,7 @@ static int __init dm365_init_devices(void)
 	platform_device_register(&dm365_edma_device);
 	platform_device_register(&dm365_emac_device);
 
-	/*
+	/*f
 	* setup Mux configuration for vpfe input and register
 	* vpfe capture platform device
 	*/

@@ -23,6 +23,12 @@ config ARCH_DAVINCI_DM355
 	select AINTC
 	select ARCH_DAVINCI_DMx
 
+config MACH_DAVINCI_DM368_ASC
+				bool "DM368 ASC board"
+	depends on ARCH_DAVINCI_DM365
+	help
+		  Awesome space camera module
+
 config ARCH_DAVINCI_DM646x
         bool "DaVinci 646x based system"
 	select AINTC
