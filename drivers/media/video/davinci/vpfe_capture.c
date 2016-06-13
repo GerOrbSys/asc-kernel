@@ -120,7 +120,7 @@ static struct ccdc_config *ccdc_cfg;
 /*  hardware interface for image processing pipeline */
 static struct imp_hw_interface *imp_hw_if;
 
-#define ASC_BUFFER_SIZE    60000000 // 60 MBs for frame buffers
+#define ASC_BUFFER_SIZE    72000000 // 72 MBs for frame buffers
 #define ASC_VIDEO_STD_LOW  ((v4l2_std_id)(0x0800000000000000ULL))
 #define ASC_VIDEO_STD_VGA  ((v4l2_std_id)(0x2000000000000000ULL))
 #define ASC_VIDEO_STD_HD   ((v4l2_std_id)(0x4000000000000000ULL))
@@ -140,61 +140,11 @@ static const struct vpfe_pixel_format vpfe_pix_fmts[] = {
 		.fmtdesc = {
 			.index = 0,
 			.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-			.description = "Bayer GrRBGb 8bit A-Law compr.",
-			.pixelformat = V4L2_PIX_FMT_SBGGR8,
-		},
-		.bpp = 1,
-		.subdev_pix_fmt = V4L2_PIX_FMT_SGRBG10,
-	},
-	{
-		.fmtdesc = {
-			.index = 1,
-			.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
 			.description = "Bayer GrRBGb - 16bit",
 			.pixelformat = V4L2_PIX_FMT_SBGGR16,
 		},
 		.bpp = 2,
 		.subdev_pix_fmt = V4L2_PIX_FMT_SGRBG10,
-	},
-	{
-		.fmtdesc = {
-			.index = 2,
-			.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-			.description = "Bayer GrRBGb 8bit DPCM compr.",
-			.pixelformat = V4L2_PIX_FMT_SGRBG10DPCM8,
-		},
-		.bpp = 1,
-		.subdev_pix_fmt = V4L2_PIX_FMT_SGRBG10,
-	},
-	{
-		.fmtdesc = {
-			.index = 3,
-			.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-			.description = "YCbCr 4:2:2 Interleaved UYVY",
-			.pixelformat = V4L2_PIX_FMT_UYVY,
-		},
-		.bpp = 2,
-		.subdev_pix_fmt = V4L2_PIX_FMT_UYVY,
-	},
-	{
-		.fmtdesc = {
-			.index = 4,
-			.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-			.description = "YCbCr 4:2:2 Interleaved YUYV",
-			.pixelformat = V4L2_PIX_FMT_YUYV,
-		},
-		.bpp = 2,
-		.subdev_pix_fmt = V4L2_PIX_FMT_UYVY,
-	},
-	{
-		.fmtdesc = {
-			.index = 5,
-			.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
-			.description = "Y/CbCr 4:2:0 - Semi planar",
-			.pixelformat = V4L2_PIX_FMT_NV12,
-		},
-		.bpp = 1,
-		.subdev_pix_fmt = V4L2_PIX_FMT_UYVY,
 	},
 };
 
@@ -206,13 +156,14 @@ static const struct vpfe_pixel_format vpfe_pix_fmts[] = {
  */
 static const struct vpfe_pixel_format *vpfe_lookup_pix_format(u32 pix_format)
 {
-	int i;
+	//int i;
+	return &vpfe_pix_fmts[0];
 
-	for (i = 0; i < ARRAY_SIZE(vpfe_pix_fmts); i++) {
-		if (pix_format == vpfe_pix_fmts[i].fmtdesc.pixelformat)
-			return &vpfe_pix_fmts[i];
-	}
-	return NULL;
+	//for (i = 0; i < ARRAY_SIZE(vpfe_pix_fmts); i++) {
+	//	if (pix_format == vpfe_pix_fmts[i].fmtdesc.pixelformat)
+	//		return &vpfe_pix_fmts[i];
+	//}
+	//return NULL;
 }
 
 /*
@@ -449,6 +400,7 @@ static int vpfe_config_image_format(struct vpfe_device *vpfe_dev,
 	int i, ret = 0;
 
 	/* configure the ccdc based on standard */
+
 	for (i = 0; i < ARRAY_SIZE(vpfe_standards); i++) {
 		if (vpfe_standards[i].std_id & *std_id) {
 			vpfe_dev->std_info.active_pixels =
@@ -472,6 +424,7 @@ static int vpfe_config_image_format(struct vpfe_device *vpfe_dev,
 	vpfe_dev->crop.left = 0;
 	vpfe_dev->crop.width = vpfe_dev->std_info.active_pixels;
 	vpfe_dev->crop.height = vpfe_dev->std_info.active_lines;
+	
 	vpfe_dev->fmt.fmt.pix.width = vpfe_dev->crop.width;
 	vpfe_dev->fmt.fmt.pix.height = vpfe_dev->crop.height;
 
@@ -726,6 +679,8 @@ static void vpfe_process_buffer_complete(struct vpfe_device *vpfe_dev)
 /* ISR for VINT0*/
 static irqreturn_t vpfe_isr(int irq, void *dev_id)
 {
+	printk(KERN_ERR "IRQ0\n");
+
 	struct vpfe_device *vpfe_dev = dev_id;
 	enum v4l2_field field;
 	int fid;
@@ -810,6 +765,8 @@ static irqreturn_t vpfe_isr(int irq, void *dev_id)
 /* vpfe_vdint1_isr - isr handler for VINT1 interrupt */
 static irqreturn_t vpfe_vdint1_isr(int irq, void *dev_id)
 {
+	printk(KERN_ERR "IRQr1\n");
+	
 	struct vpfe_device *vpfe_dev = dev_id;
 
 	/* if streaming not started, don't do anything */
@@ -1128,6 +1085,7 @@ static const struct vpfe_pixel_format *
 	u32 pix;
 	int temp, found;
 
+
 	vpfe_pix_fmt = vpfe_lookup_pix_format(pixfmt->pixelformat);
 	if (NULL == vpfe_pix_fmt) {
 		/*
@@ -1137,6 +1095,7 @@ static const struct vpfe_pixel_format *
 		pixfmt->pixelformat = vpfe_dev->fmt.fmt.pix.pixelformat;
 		vpfe_pix_fmt = vpfe_lookup_pix_format(pixfmt->pixelformat);
 	}
+
 
 	/* check if hw supports it */
 	temp = 0;
@@ -1161,6 +1120,7 @@ static const struct vpfe_pixel_format *
 		}
 	}
 
+
 	if (!found) {
 		/* use current pixel format */
 		pixfmt->pixelformat = vpfe_dev->fmt.fmt.pix.pixelformat;
@@ -1170,6 +1130,7 @@ static const struct vpfe_pixel_format *
 		 */
 		vpfe_pix_fmt = vpfe_lookup_pix_format(pixfmt->pixelformat);
 	}
+
 
 	/* check what field format is supported */
 	if (pixfmt->field == V4L2_FIELD_ANY) {
@@ -1223,8 +1184,10 @@ static const struct vpfe_pixel_format *
 	v4l2_info(&vpfe_dev->v4l2_dev, "width = %d, height = %d, bpp = %d\n",
 		  pixfmt->width, pixfmt->height, vpfe_pix_fmt->bpp);
 
+
 	pixfmt->width = clamp((pixfmt->width), min_width, max_width);
 	pixfmt->height = clamp((pixfmt->height), min_height, max_height);
+
 
 	/* If interlaced, adjust height to be a multiple of 2 */
 	if (pixfmt->field == V4L2_FIELD_INTERLACED)
@@ -1235,6 +1198,7 @@ static const struct vpfe_pixel_format *
 	 */
 	pixfmt->bytesperline = (((pixfmt->width * vpfe_pix_fmt->bpp) + 31)
 				& ~31);
+
 	if (pixfmt->pixelformat == V4L2_PIX_FMT_NV12)
 		pixfmt->sizeimage =
 			pixfmt->bytesperline * pixfmt->height +
@@ -1242,10 +1206,12 @@ static const struct vpfe_pixel_format *
 	else
 		pixfmt->sizeimage = pixfmt->bytesperline * pixfmt->height;
 
+
 	v4l2_info(&vpfe_dev->v4l2_dev, "adjusted width = %d, height ="
 		 " %d, bpp = %d, bytesperline = %d, sizeimage = %d\n",
 		 pixfmt->width, pixfmt->height, vpfe_pix_fmt->bpp,
 		 pixfmt->bytesperline, pixfmt->sizeimage);
+
 	return vpfe_pix_fmt;
 }
 
@@ -1417,6 +1383,8 @@ static int vpfe_s_fmt_vid_cap(struct file *file, void *priv,
 	const struct vpfe_pixel_format *pix_fmts;
 	struct vpfe_subdev_info *sdinfo;
 	int ret = 0;
+
+	printk(KERN_ERR "SET FMT VID CAP");
 
 	v4l2_dbg(1, debug, &vpfe_dev->v4l2_dev, "vpfe_s_fmt_vid_cap\n");
 
@@ -1624,7 +1592,8 @@ static int vpfe_s_input(struct file *file, void *priv, unsigned int index)
 	}
 
 	sdinfo = &vpfe_dev->cfg->sub_devs[subdev_index];
-
+        sdinfo->ccdc_if_params.if_type=VPFE_RAW_BAYER;
+	
 	if (!sdinfo->registered) {
 		ret = -EINVAL;
 		goto unlock_out;
@@ -2098,6 +2067,8 @@ static int vpfe_streamon(struct file *file, void *priv,
 		ret = -EFAULT;
 		goto unlock_out;
 	}
+
+	printk(KERN_ERR "IMP CHAINED %d \n", vpfe_dev->imp_chained);
 
 	if (ccdc_dev->hw_ops.configure(vpfe_dev->imp_chained) < 0) {
 		v4l2_err(&vpfe_dev->v4l2_dev,

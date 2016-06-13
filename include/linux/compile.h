@@ -1,9 +1,9 @@
-/* This file is auto generated, version 12 */
+/* This file is auto generated, version 54 */
 /*  PREEMPT */
 #define UTS_MACHINE "arm"
-#define UTS_VERSION "#12 PREEMPT Wed May 4 10:42:25 CEST 2016"
-#define LINUX_COMPILE_TIME "10:42:25"
-#define LINUX_COMPILE_BY "de"
-#define LINUX_COMPILE_HOST "de-desktop"
-#define LINUX_COMPILE_DOMAIN "fritz.box"
+#define UTS_VERSION "#54 PREEMPT Mon Jun 13 21:38:45 CEST 2016"
+#define LINUX_COMPILE_TIME "21:38:45"
+#define LINUX_COMPILE_BY "ubuntudevpc"
+#define LINUX_COMPILE_HOST "ubuntudevpc-ThinkPad-T400"
+#define LINUX_COMPILE_DOMAIN
 #define LINUX_COMPILER "gcc version 4.3.3 (Sourcery G++ Lite 2009q1-203) "

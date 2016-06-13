@@ -96,7 +96,7 @@ static struct ccdc_oper_config ccdc_cfg = {
 	.bayer = {
 		.pix_fmt = CCDC_PIXFMT_RAW,
 		.frm_fmt = CCDC_FRMFMT_PROGRESSIVE,
-		.win = CCDC_WIN_VGA,
+		.win = {0, 0, 3664, 2748},
 		.fid_pol = VPFE_PINPOL_POSITIVE,
 		.vd_pol = VPFE_PINPOL_POSITIVE,
 		.hd_pol = VPFE_PINPOL_POSITIVE,
@@ -126,12 +126,12 @@ static struct ccdc_oper_config ccdc_cfg = {
 			.test_pat_gen = 0,
 		},
 	},
-	.data_pack = CCDC_DATA_PACK8,
+	.data_pack = CCDC_PACK_16BIT,
 };
 
 /* Raw Bayer formats */
 static u32 ccdc_raw_bayer_pix_formats[] =
-		{V4L2_PIX_FMT_SBGGR8, V4L2_PIX_FMT_SBGGR16};
+		{V4L2_PIX_FMT_SBGGR16};
 
 /* Raw YUV formats */
 static u32 ccdc_raw_yuv_pix_formats[] =
@@ -298,6 +298,8 @@ static int ccdc_open(struct device *device)
 static void ccdc_setwin(struct v4l2_rect *image_win,
 			enum ccdc_frmfmt frm_fmt, int ppc, int mode)
 {
+	printk(KERN_ERR "IMAGEWIN %d %d %d %d \n", image_win->left, image_win->top, image_win->width, image_win->height);
+
 	int horz_start, horz_nr_pixels;
 	int vert_start, vert_nr_lines;
 	int mid_img = 0;
@@ -308,6 +310,7 @@ static void ccdc_setwin(struct v4l2_rect *image_win,
 	 * output to SDRAM. example, for ycbcr, it is one y and one c, so 2.
 	 * raw capture this is 1
 	 */
+
 	horz_start = image_win->left << (ppc - 1);
 	horz_nr_pixels = ((image_win->width) << (ppc - 1)) - 1;
 
@@ -337,6 +340,8 @@ static void ccdc_setwin(struct v4l2_rect *image_win,
 	regw(vert_start & START_VER_ONE_MASK, SLV0);
 	regw(vert_start & START_VER_TWO_MASK, SLV1);
 	regw(vert_nr_lines & NUM_LINES_VER, LNV);
+
+	printk("XXX %d %d %d XXX \n", horz_nr_pixels, vert_nr_lines, mode);
 }
 
 static void ccdc_config_bclamp(struct ccdc_black_clamp *bc)
@@ -641,6 +646,8 @@ static int ccdc_config_raw(int mode)
 
 	dev_dbg(dev, "\nStarting ccdc_config_raw..\n");
 
+	printk(KERN_ERR "CCDC CONFG RAW\n");
+
 	/* Configure CCDCFG register */
 
 	/**
@@ -652,6 +659,11 @@ static int ccdc_config_raw(int mode)
 	 * Packed to 8 or 16 bits
 	 */
 
+	printk(KERN_ERR "BEFORE %d \n", ccdc_cfg.data_pack);
+	ccdc_cfg.data_pack =  CCDC_PACK_16BIT;
+
+
+	printk(KERN_ERR "AFTER %d \n", ccdc_cfg.data_pack);
 	val = CCDC_YCINSWP_RAW | CCDC_CCDCFG_FIDMD_LATCH_VSYNC |
 		CCDC_CCDCFG_WENLOG_AND | CCDC_CCDCFG_TRGSEL_WEN |
 		CCDC_CCDCFG_EXTRG_DISABLE | (ccdc_cfg.data_pack &
@@ -1258,6 +1270,8 @@ static int ccdc_config_ycbcr(int mode)
 	u32 modeset = 0, ccdcfg = 0;
 	struct vpss_sync_pol sync;
 
+        printk(KERN_ERR "CCDC ycbcr RAW\n");
+
 	/**
 	 * first reset the CCDC
 	 * all registers have default values after reset
@@ -1368,10 +1382,10 @@ static int ccdc_config_ycbcr(int mode)
 
 static int ccdc_configure(int mode)
 {
-	if (ccdc_cfg.if_type == VPFE_RAW_BAYER)
+	//if (ccdc_cfg.if_type == VPFE_RAW_BAYER)
 		return ccdc_config_raw(mode);
-	else
-		ccdc_config_ycbcr(mode);
+	//else
+	//	ccdc_config_ycbcr(mode);
 
 	return 0;
 }
