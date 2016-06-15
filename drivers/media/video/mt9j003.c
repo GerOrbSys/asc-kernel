@@ -405,8 +405,9 @@ static int mt9j003_set_params(struct v4l2_subdev *sd)
 	// Row timing
 	reg_write(client, MT9J003_LINE_LENGTH_PCK, 2300);
 	reg_write(client, MT9J003_FRAME_LENGTH_LINES, 1161);
+	// Course INT Time not used in examples, 0x44c old value
 
-	//reg_write(client, MT9J003_COURSE_INT_TIME, 0x44c);
+	reg_write(client, MT9J003_COURSE_INT_TIME, 0x44C);
 	reg_write(client, MT9J003_FINE_CORRECTION, 72);
  	reg_write(client, MT9J003_FINE_INT_TIME, 522);
 	reg_write(client, MT9J003_EXTRA_DELAY, 0);
@@ -460,7 +461,7 @@ static int mt9j003_s_stream(struct v4l2_subdev *sd, int enable)
 		//reg_write(client, 0x301E, 0x00A8);	// Reserved
 		
 		//***Default Auto Exposure
-		reg_write(client,  0x0202, 0x0200); 	// COARSE_INTEGRATION_TIME
+		reg_write(client,  0x0202, 0x0400); 	// COARSE_INTEGRATION_TIME
 		reg_write(client,  0x3056, 0x10CD); 	// GREEN1_GAIN
 		reg_write(client,  0x3058, 0x10CD); 	// BLUE_GAIN
 		reg_write(client,  0x305A, 0x10CD); 	// RED_GAIN
