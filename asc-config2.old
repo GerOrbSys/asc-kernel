@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.32-17-asc
-# Fri Apr 22 19:43:11 2016
+# Mon Jun 27 14:07:41 2016
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -743,15 +743,15 @@ CONFIG_I2C_DEBUG_ALGO=y
 CONFIG_I2C_DEBUG_BUS=y
 CONFIG_I2C_DEBUG_CHIP=y
 CONFIG_SPI=y
-# CONFIG_SPI_DEBUG is not set
+#CONFIG_SPI_DEBUG=y
 CONFIG_SPI_MASTER=y
 
 #
 # SPI Master Controller Drivers
 #
 CONFIG_SPI_DAVINCI=y
-CONFIG_SPI_BITBANG=y
-# CONFIG_SPI_GPIO is not set
+#CONFIG_SPI_BITBANG=y
+CONFIG_SPI_GPIO=y
 
 #
 # SPI Protocol Masters

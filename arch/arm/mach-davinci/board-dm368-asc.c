@@ -61,6 +61,18 @@
 static struct i2c_board_info i2c_info[] = {
 };
 
+//SPI struct for exporting SPI Devices to Userspace
+
+static struct spi_board_info board_spi1_board_info[] = {
+{
+	.modalias = "spidev", /*Expose SPI to Userspace*/
+	.max_speed_hz = 100000, /*SPI Speed*/
+	.bus_num = 1, /*Mc SPI Bus Number*/
+	.chip_select = 0, /*Chip Select for Mc SPI*/
+	.mode = 2, /*SPI Mode*/
+},
+};
+
 static struct davinci_i2c_platform_data i2c_pdata = {
 	.bus_freq	      = 400	/* kHz */,
 	.bus_delay    	= 0	/* usec */,
@@ -240,9 +252,22 @@ static __init void dm368_asc_init(void)
 	davinci_setup_mmc(0, &dm368asc_mmc_config);
 
 	// Mux pin for Sensor module power and request gpio for sensor power control
-  davinci_cfg_reg(DM365_GPIO30);
+ 	davinci_cfg_reg(DM365_GPIO30);
 	gpio_request(30, "camera-power");
 
+	//Init SPI Interface
+	davinci_cfg_reg(DM365_SPI2_SDO);
+	davinci_cfg_reg(DM365_SPI2_SDI);
+	davinci_cfg_reg(DM365_SPI2_SCLK);
+	
+	int ret_val = 0;
+	ret_val = spi_register_board_info(board_spi1_board_info, 
+		ARRAY_SIZE(board_spi1_board_info));
+	if (ret_val==0) printk(KERN_INFO "SPI registered!\n");
+	else printk(KERN_INFO "SPI registeration failed!\n");
+	
+	//platform_device_register(&dm365_spi1_device);
+	
 	dm365_init_rtc();
 
 	platform_add_devices(dm368_asc_devices,
