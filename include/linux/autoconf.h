@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
  * Linux kernel version: 2.6.32-17-asc
- * Fri Jul 29 10:56:05 2016
+ * Thu Aug 11 11:48:02 2016
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_UBIFS_FS_ZLIB 1
@@ -103,12 +103,14 @@
 #define CONFIG_EXTRA_FIRMWARE ""
 #define CONFIG_CPU_CP15 1
 #define CONFIG_BLK_DEV_INITRD 1
+#define CONFIG_SPI_BITBANG 1
 #define CONFIG_PAGE_OFFSET 0xC0000000
 #define CONFIG_CPU_CACHE_VIVT 1
 #define CONFIG_UNIX 1
 #define CONFIG_SERIAL_CORE 1
 #define CONFIG_SIGNALFD 1
 #define CONFIG_LZO_DECOMPRESS 1
+#define CONFIG_SPI_DAVINCI 1
 #define CONFIG_UID16 1
 #define CONFIG_LOCK_KERNEL 1
 #define CONFIG_CRYPTO_ARC4 1
@@ -183,6 +185,7 @@
 #define CONFIG_MEDIA_TUNER_SIMPLE 1
 #define CONFIG_TREE_RCU 1
 #define CONFIG_VIDEO_VPFE_CAPTURE 1
+#define CONFIG_SPI_GPIO 1
 #define CONFIG_SHMEM 1
 #define CONFIG_ARCH_DAVINCI 1
 #define CONFIG_EPOLL 1

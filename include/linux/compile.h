@@ -1,8 +1,8 @@
-/* This file is auto generated, version 72 */
+/* This file is auto generated, version 99 */
 /*  PREEMPT */
 #define UTS_MACHINE "arm"
-#define UTS_VERSION "#72 PREEMPT Fri Jul 29 12:22:17 CEST 2016"
-#define LINUX_COMPILE_TIME "12:22:17"
+#define UTS_VERSION "#99 PREEMPT Wed Sep 7 18:01:09 CEST 2016"
+#define LINUX_COMPILE_TIME "18:01:09"
 #define LINUX_COMPILE_BY "ubuntudevpc"
 #define LINUX_COMPILE_HOST "ubuntudevpc-ThinkPad-T400"
 #define LINUX_COMPILE_DOMAIN

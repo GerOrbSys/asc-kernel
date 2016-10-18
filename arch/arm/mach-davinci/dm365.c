@@ -647,6 +647,8 @@ EVT_CFG(DM365,	EVT3_VC_RX,          1,     1,    1,     false)
 };
 
 static u64 dm365_spi0_dma_mask = DMA_BIT_MASK(32);
+//adding SPI1
+static u64 dm365_spi1_dma_mask = DMA_BIT_MASK(32); 
 
 static struct davinci_spi_platform_data dm365_spi0_pdata = {
 	.version 	= SPI_VERSION_1,
@@ -659,6 +661,20 @@ static struct davinci_spi_platform_data dm365_spi0_pdata = {
 	.c2tdelay	= 0,
 	.t2cdelay	= 0,
 };
+
+//adding SPI1
+static struct davinci_spi_platform_data dm365_spi1_pdata = {
+        .version        = SPI_VERSION_1,
+        .num_chipselect = 2,
+        .clk_internal   = 1,
+        .cs_hold        = 1,
+        .intr_level     = 0,
+        .poll_mode      = 1,    /* 0 -> interrupt mode 1-> polling mode */
+        .use_dma        = 1,    /* when 1, value in poll_mode is ignored */
+        .c2tdelay       = 0,
+        .t2cdelay       = 0,
+};
+
 
 static struct resource dm365_spi0_resources[] = {
 	{
@@ -684,6 +700,32 @@ static struct resource dm365_spi0_resources[] = {
 	},
 };
 
+//adding SPI1
+static struct resource dm365_spi1_resources[] = {
+        {
+                .start = 0x01c66800,
+                .end   = 0x01c66fff,
+                .flags = IORESOURCE_MEM,
+        },
+        {
+                .start = IRQ_DM365_SPIINT0_0,
+                .flags = IORESOURCE_IRQ,
+        },
+        {
+                .start = 17,
+                .flags = IORESOURCE_DMA | IORESOURCE_DMA_RX_CHAN,
+        },
+        {
+                .start = 16,
+                .flags = IORESOURCE_DMA | IORESOURCE_DMA_TX_CHAN,
+        },
+        {
+                .start = EVENTQ_3,
+                .flags = IORESOURCE_DMA | IORESOURCE_DMA_EVENT_Q,
+        },
+};
+
+
 static struct platform_device dm365_spi0_device = {
 	.name = "spi_davinci",
 	.id = 0,
@@ -695,6 +737,24 @@ static struct platform_device dm365_spi0_device = {
 	.num_resources = ARRAY_SIZE(dm365_spi0_resources),
 	.resource = dm365_spi0_resources,
 };
+
+//adding SPI1
+
+
+static struct platform_device dm365_spi1_device = {
+        .name = "spi_davinci",
+        .id = 1, //sure?
+        .dev = {
+                .dma_mask = &dm365_spi1_dma_mask,
+                .coherent_dma_mask = DMA_BIT_MASK(32),
+                .platform_data = &dm365_spi1_pdata,
+        },
+        .num_resources = ARRAY_SIZE(dm365_spi1_resources),
+        .resource = dm365_spi1_resources,
+};
+
+
+
 
 void __init dm365_init_spi0(unsigned chipselect_mask,
 		struct spi_board_info *info, unsigned len)
@@ -713,6 +773,26 @@ void __init dm365_init_spi0(unsigned chipselect_mask,
 
 	platform_device_register(&dm365_spi0_device);
 }
+
+//adding SPI1
+void __init dm365_init_spi1(unsigned chipselect_mask,
+                struct spi_board_info *info, unsigned len)
+{
+        davinci_cfg_reg(DM365_SPI1_SCLK);
+        davinci_cfg_reg(DM365_SPI1_SDI);
+        davinci_cfg_reg(DM365_SPI1_SDO);
+
+        /* not all slaves will be wired up */
+        if (chipselect_mask & BIT(0))
+                davinci_cfg_reg(DM365_SPI1_SDENA0);
+        if (chipselect_mask & BIT(1))
+                davinci_cfg_reg(DM365_SPI1_SDENA1);
+
+        spi_register_board_info(info, len);
+
+        platform_device_register(&dm365_spi1_device);
+}
+
 
 
 /* IPIPEIF device configuration */

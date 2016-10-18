@@ -66,10 +66,10 @@ static struct i2c_board_info i2c_info[] = {
 static struct spi_board_info board_spi1_board_info[] = {
 {
 	.modalias = "spidev", /*Expose SPI to Userspace*/
-	.max_speed_hz = 100000, /*SPI Speed*/
+	.max_speed_hz = 20*1000*1000, /*SPI Speed*/
 	.bus_num = 1, /*Mc SPI Bus Number*/
 	.chip_select = 0, /*Chip Select for Mc SPI*/
-	.mode = 2, /*SPI Mode*/
+	.mode = SPI_MODE_0, /*SPI Mode*/
 },
 };
 
@@ -256,18 +256,19 @@ static __init void dm368_asc_init(void)
 	gpio_request(30, "camera-power");
 
 	//Init SPI Interface
-	davinci_cfg_reg(DM365_SPI2_SDO);
-	davinci_cfg_reg(DM365_SPI2_SDI);
-	davinci_cfg_reg(DM365_SPI2_SCLK);
+	//davinci_cfg_reg(DM365_SPI1_SDO);
+	//davinci_cfg_reg(DM365_SPI1_SDI);
+	//davinci_cfg_reg(DM365_SPI1_SCLK);
 	
-	int ret_val = 0;
-	ret_val = spi_register_board_info(board_spi1_board_info, 
-		ARRAY_SIZE(board_spi1_board_info));
-	if (ret_val==0) printk(KERN_INFO "SPI registered!\n");
-	else printk(KERN_INFO "SPI registeration failed!\n");
+	//int ret_val = 0;
+	//ret_val = spi_register_board_info(board_spi1_board_info, 
+	//	ARRAY_SIZE(board_spi1_board_info));
+	//if (ret_val==0) printk(KERN_INFO "SPI registered!\n");
+	//else printk(KERN_INFO "SPI registeration failed!\n");
 	
 	//platform_device_register(&dm365_spi1_device);
-	
+	dm365_init_spi1(BIT(0), board_spi1_board_info, ARRAY_SIZE(board_spi1_board_info));	
+
 	dm365_init_rtc();
 
 	platform_add_devices(dm368_asc_devices,

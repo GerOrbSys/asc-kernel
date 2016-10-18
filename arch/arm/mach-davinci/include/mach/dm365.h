@@ -47,4 +47,8 @@ struct spi_board_info;
 void dm365_init_spi0(unsigned chipselect_mask,
 		struct spi_board_info *info, unsigned len);
 
+void dm365_init_spi1(unsigned chipselect_mask,
+                struct spi_board_info *info, unsigned len);
+
+
 #endif /* __ASM_ARCH_DM365_H */
